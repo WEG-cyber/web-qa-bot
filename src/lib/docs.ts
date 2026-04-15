@@ -2,24 +2,14 @@ import fs from "fs";
 import path from "path";
 
 /**
- * 遞迴讀取目錄下的所有 .md 檔案內容
+ * 遞迴讀取專案內知識庫目錄下的所有 .md 檔案內容
  */
 export async function getKnowledgeBase() {
-  const baseDir = "/Users/a123/Desktop/888/1688";
-  const docFile = "/Users/a123/Desktop/111/Documents/Helen_研發中心/Cellbedell_NU1_G2s_規格說明書.md";
+  // 使用相對路徑，確保在 Vercel 雲端也能讀取
+  const baseDir = path.join(process.cwd(), "src/data/knowledge");
   
   let content = "";
 
-  // 1. 讀取指定的大型規格文件
-  try {
-    if (fs.existsSync(docFile)) {
-      content += `文件: ${path.basename(docFile)}\n${fs.readFileSync(docFile, "utf-8")}\n\n`;
-    }
-  } catch (err) {
-    console.error("Error reading main doc:", err);
-  }
-
-  // 2. 遞迴讀取 1688 資料夾
   const readFiles = (dir: string) => {
     if (!fs.existsSync(dir)) return;
     const items = fs.readdirSync(dir);
@@ -35,9 +25,13 @@ export async function getKnowledgeBase() {
   };
 
   try {
-    readFiles(baseDir);
+    if (fs.existsSync(baseDir)) {
+      readFiles(baseDir);
+    } else {
+      console.warn("Knowledge base directory not found at:", baseDir);
+    }
   } catch (err) {
-    console.error("Error scanning 1688:", err);
+    console.error("Error scanning knowledge base:", err);
   }
 
   return content;
