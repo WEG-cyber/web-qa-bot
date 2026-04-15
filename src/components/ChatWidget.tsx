@@ -206,7 +206,7 @@ export default function ChatWidget() {
               </div>
               <div className="flex items-center justify-between mt-4 px-1">
                 <div className="flex gap-4">
-                  <Sparkles size={14} className="text-zinc-700 hover:text-cyan-500 cursor-help transition-colors" title="AI Powered" />
+                  <Sparkles size={14} className="text-zinc-700 hover:text-cyan-500 cursor-help transition-colors" />
                 </div>
                 <p className="text-[9px] text-zinc-700 uppercase tracking-[0.2em] font-mono">
                   Cellbedell Ecosystem Pro
