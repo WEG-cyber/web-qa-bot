@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, X, Send, Smartphone, ShieldCheck, Loader2 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -18,18 +19,30 @@ interface Message {
 }
 
 export default function ChatWidget() {
+  const searchParams = useSearchParams();
+  const lang = searchParams.get('lang') || 'zh'; // 預設中文
+  
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      role: 'bot',
-      text: '您好，我是 Alice。很榮幸為您提供 Cellbedell 專業技術與產品支援，有什麼我可以協助您的？',
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // 根據語言設定初始歡迎詞
+  useEffect(() => {
+    const initialMsg = lang === 'en' 
+      ? 'Hello, I am Alice. I am honored to provide professional technical and product support for Cellbedell. How can I help you today?'
+      : '您好，我是 Alice。很榮幸為您提供 Cellbedell 專業技術與產品支援，有什麼我可以協助您的？';
+      
+    setMessages([
+      {
+        id: '1',
+        role: 'bot',
+        text: initialMsg,
+        timestamp: new Date(),
+      },
+    ]);
+  }, [lang]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -57,7 +70,10 @@ export default function ChatWidget() {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input }),
+        body: JSON.stringify({ 
+          message: input,
+          lang: lang // 將語系傳給後端
+        }),
       });
 
       const data = await response.json();
@@ -65,7 +81,7 @@ export default function ChatWidget() {
       const botMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: 'bot',
-        text: data.reply || '系統偵測到異常，請稍後再試。',
+        text: data.reply || (lang === 'en' ? 'System error, please try again.' : '系統偵測到異常，請稍後再試。'),
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botMsg]);
@@ -78,7 +94,7 @@ export default function ChatWidget() {
 
   return (
     <div className="fixed bottom-4 right-4 z-50 font-sans">
-      {/* Premium Floating Button - The "Small Black Robot" Style */}
+      {/* Premium Floating Button */}
       <motion.button
         whileHover={{ scale: 1.1, rotate: 5 }}
         whileTap={{ scale: 0.9 }}
@@ -92,7 +108,7 @@ export default function ChatWidget() {
         )}
       </motion.button>
 
-      {/* Pop-up Chat Window - High-end Dark Glass */}
+      {/* Pop-up Chat Window */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -111,7 +127,9 @@ export default function ChatWidget() {
                   <h3 className="font-bold text-white text-sm tracking-wide">ALICE – SMART AGENT</h3>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                    <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-tighter">Enterprise Secure v2.5</span>
+                    <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-tighter">
+                      {lang === 'en' ? 'Enterprise Secure v2.5' : '企業級安全連線 v2.5'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -144,7 +162,9 @@ export default function ChatWidget() {
               {isLoading && (
                 <div className="flex items-center gap-2 text-cyan-500 p-2">
                   <Loader2 size={14} className="animate-spin" />
-                  <span className="text-[10px] font-mono tracking-widest uppercase">Processing Request...</span>
+                  <span className="text-[10px] font-mono tracking-widest uppercase">
+                    {lang === 'en' ? 'Processing...' : 'AI 思考中...'}
+                  </span>
                 </div>
               )}
               <div ref={messagesEndRef} />
@@ -155,7 +175,7 @@ export default function ChatWidget() {
               <div className="bg-white/5 border border-white/10 rounded-2xl p-1 flex items-center">
                 <input
                   type="text"
-                  placeholder="詢問技術細節..."
+                  placeholder={lang === 'en' ? 'Ask a question...' : '詢問技術細節...'}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
