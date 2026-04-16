@@ -23,7 +23,7 @@ export default function ChatWidget() {
     {
       id: '1',
       role: 'bot',
-      text: '您好，我是 Cellbedell 智慧系統與硬體專家。請輸入您的問題，我會為您提供技術支援。',
+      text: '您好，我是 Alice。很榮幸為您提供 Cellbedell 專業技術與產品支援，有什麼我可以協助您的？',
       timestamp: new Date(),
     },
   ]);
@@ -108,10 +108,10 @@ export default function ChatWidget() {
                   <Smartphone size={20} className="text-cyan-400" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white text-sm tracking-wide">CELLBEDELL AI AGENT</h3>
+                  <h3 className="font-bold text-white text-sm tracking-wide">ALICE – SMART AGENT</h3>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <ShieldCheck size={10} className="text-green-500" />
-                    <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-tighter">Secure Protocol v2.5</span>
+                    <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                    <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-tighter">Enterprise Secure v2.5</span>
                   </div>
                 </div>
               </div>
