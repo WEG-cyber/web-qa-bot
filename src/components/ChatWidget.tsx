@@ -131,7 +131,7 @@ export default function ChatWidget() {
                 >
                   <div
                     className={cn(
-                      "px-4 py-3 rounded-2xl text-[13.5px] leading-relaxed",
+                      "px-4 py-3 rounded-2xl text-[13.5px] leading-relaxed whitespace-pre-wrap",
                       msg.role === 'user'
                         ? "bg-cyan-500 text-black font-semibold rounded-tr-none shadow-[0_5px_15px_rgba(6,182,212,0.3)]"
                         : "bg-zinc-900 border border-white/5 text-zinc-100 rounded-tl-none shadow-xl"
