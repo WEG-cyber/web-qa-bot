@@ -99,7 +99,7 @@ export default function ChatWidget() {
             initial={{ opacity: 0, y: 20, scale: 0.8, originX: '100%', originY: '100%' }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.8 }}
-            className="absolute bottom-16 right-0 w-[400px] h-[580px] bg-[#0c0c0e]/95 backdrop-blur-3xl rounded-[32px] shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden border border-white/10 flex flex-col"
+            className="absolute bottom-16 right-0 w-[400px] h-[580px] bg-[#0c0c0e]/95 backdrop-blur-3xl rounded-[32px] shadow-[0_10px_40px_rgba(0,0,0,0.4)] overflow-hidden border border-white/10 flex flex-col"
           >
             {/* Header */}
             <div className="p-6 bg-black/40 border-b border-white/5">
