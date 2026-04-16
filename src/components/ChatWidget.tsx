@@ -103,7 +103,7 @@ export default function ChatWidget() {
             initial={{ opacity: 0, y: 30, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
-            className="absolute bottom-20 right-0 w-[400px] h-[620px] bg-[#0a0a0b]/95 backdrop-blur-xl rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.7)] overflow-hidden border border-white/10 flex flex-col"
+            className="absolute bottom-20 right-0 w-[400px] h-[620px] bg-white/90 backdrop-blur-2xl rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2)] overflow-hidden border border-white/20 flex flex-col"
           >
             {/* Header: Cyber Design */}
             <div className="relative p-6 bg-[#000000] border-b border-white/5 overflow-hidden">
@@ -140,8 +140,8 @@ export default function ChatWidget() {
               </div>
             </div>
 
-            {/* Message Area: Dark Theme */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-white/5 scrollbar-track-transparent">
+            {/* Message Area: Light Theme */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-white/50 scrollbar-thin scrollbar-thumb-zinc-200 scrollbar-track-transparent">
               {messages.map((msg) => (
                 <motion.div
                   key={msg.id}
@@ -157,7 +157,7 @@ export default function ChatWidget() {
                       "px-4 py-3 rounded-2xl text-[14px] leading-relaxed transition-all",
                       msg.role === 'user'
                         ? "bg-cyan-500 text-black font-medium rounded-tr-none shadow-[0_10px_20px_-5px_rgba(6,182,212,0.3)]"
-                        : "bg-zinc-900/50 border border-white/5 text-zinc-200 rounded-tl-none backdrop-blur-sm"
+                        : "bg-white border border-zinc-200 text-zinc-800 rounded-tl-none shadow-sm"
                     )}
                   >
                     {msg.text}
@@ -180,8 +180,8 @@ export default function ChatWidget() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area: Glass Style */}
-            <div className="p-6 pt-2 bg-gradient-to-t from-[#000000] to-transparent">
+            {/* Input Area: Light Glass Style */}
+            <div className="p-6 pt-2 bg-gradient-to-t from-white to-transparent">
               <div className="relative group">
                 <input
                   type="text"
@@ -189,7 +189,7 @@ export default function ChatWidget() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                  className="w-full bg-zinc-900/80 border border-white/5 focus:border-cyan-500/50 outline-none rounded-2xl py-4 pl-5 pr-14 text-sm text-white placeholder:text-zinc-600 transition-all shadow-inner"
+                  className="w-full bg-zinc-100/80 border border-zinc-200 focus:border-cyan-500/50 outline-none rounded-2xl py-4 pl-5 pr-14 text-sm text-zinc-900 placeholder:text-zinc-400 transition-all shadow-inner"
                 />
                 <button
                   onClick={handleSend}
