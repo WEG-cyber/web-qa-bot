@@ -16,6 +16,13 @@ export async function POST(req: NextRequest) {
     // 2. 呼叫 Gemini
     const reply = await getGeminiResponse(message, context);
 
+    // 🏆 收集題庫邏輯：在後台日誌記錄問答對碼
+    console.log("--- [Alice Question Bank Log] ---");
+    console.log(`時間: ${new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })}`);
+    console.log(`問題: ${message}`);
+    console.log(`回答: ${reply}`);
+    console.log("---------------------------------");
+
     return NextResponse.json({ reply });
   } catch (error: any) {
     console.error("API Error:", error);
