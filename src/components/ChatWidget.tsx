@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, Send, Bot, Loader2, Sparkles, Smartphone, ShieldCheck } from 'lucide-react';
+import { MessageSquare, X, Send, Smartphone, ShieldCheck, Loader2 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -23,7 +23,7 @@ export default function ChatWidget() {
     {
       id: '1',
       role: 'bot',
-      text: '您好，我是 Cellbedell 智慧系統與硬體專家。關於 Edge AI 門禁或 APP 操作，有什麼我可以協助您的？',
+      text: '您好，我是 Cellbedell 智慧系統與硬體專家。請輸入您的問題，我會為您提供技術支援。',
       timestamp: new Date(),
     },
   ]);
@@ -65,7 +65,7 @@ export default function ChatWidget() {
       const botMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: 'bot',
-        text: data.reply || '系統偵測到異常，請檢查網路連線或稍後再試。',
+        text: data.reply || '系統偵測到異常，請稍後再試。',
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botMsg]);
@@ -77,76 +77,53 @@ export default function ChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans selection:bg-cyan-500/30">
-      {/* Premium Floating Button */}
+    <div className="fixed bottom-4 right-4 z-50 font-sans">
+      {/* Premium Floating Button - The "Small Black Robot" Style */}
       <motion.button
-        whileHover={{ scale: 1.05, boxShadow: "0 0 20px rgba(0, 255, 213, 0.4)" }}
-        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.1, rotate: 5 }}
+        whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="relative w-16 h-16 bg-[#000000] border border-cyan-500/30 rounded-2xl flex items-center justify-center text-cyan-400 cursor-pointer overflow-hidden group shadow-[0_0_15px_rgba(0,0,0,0.5)]"
+        className="relative w-14 h-14 bg-black border border-white/20 rounded-2xl flex items-center justify-center text-cyan-400 cursor-pointer shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-50 overflow-hidden group"
       >
-        <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-        {isOpen ? (
-          <X size={28} className="relative z-10" />
-        ) : (
-          <div className="relative z-10 flex flex-col items-center">
-            <MessageSquare size={28} />
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-cyan-400 rounded-full border-2 border-black" />
-          </div>
+        <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+        {isOpen ? <X size={24} className="text-white" /> : <MessageSquare size={26} fill="currentColor" />}
+        {!isOpen && (
+          <div className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
         )}
       </motion.button>
 
-      {/* Futuristic Chat Window */}
+      {/* Pop-up Chat Window - High-end Dark Glass */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            initial={{ opacity: 0, y: 20, scale: 0.8, originX: '100%', originY: '100%' }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 30, scale: 0.95 }}
-            className="absolute bottom-20 right-0 w-[400px] h-[620px] bg-white/90 backdrop-blur-2xl rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2)] overflow-hidden border border-white/20 flex flex-col"
+            exit={{ opacity: 0, y: 20, scale: 0.8 }}
+            className="absolute bottom-16 right-0 w-[400px] h-[580px] bg-[#0c0c0e]/95 backdrop-blur-3xl rounded-[32px] shadow-[0_40px_100px_rgba(0,0,0,0.8)] overflow-hidden border border-white/10 flex flex-col"
           >
-            {/* Header: Cyber Design */}
-            <div className="relative p-6 bg-[#000000] border-b border-white/5 overflow-hidden">
-              {/* Circuit Pattern Background Decoration */}
-              <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-                <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
-                  <path d="M0 20 H100 M20 0 V100 M80 0 V100 M0 50 H100" stroke="currentColor" fill="none" className="text-cyan-500" strokeWidth="0.5" />
-                </svg>
-              </div>
-              
-              <div className="relative z-10 flex items-center gap-4">
-                <div className="relative">
-                  <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center text-white shadow-[0_0_15px_rgba(6,182,212,0.4)]">
-                    <Smartphone size={24} />
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-black rounded-full" title="Online" />
+            {/* Header */}
+            <div className="p-6 bg-black/40 border-b border-white/5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-zinc-700 to-black rounded-xl border border-white/10 flex items-center justify-center shadow-inner">
+                  <Smartphone size={20} className="text-cyan-400" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white tracking-tight flex items-center gap-2">
-                    Cellbedell AI 專員
-                    <span className="text-[10px] bg-cyan-500/20 text-cyan-400 px-1.5 py-0.5 rounded border border-cyan-500/30 uppercase">Enterprise</span>
-                  </h3>
-                  <p className="text-xs text-zinc-500 flex items-center gap-1.5 mt-0.5">
-                    <ShieldCheck size={12} className="text-cyan-500" />
-                    安全連線已建立
-                  </p>
+                  <h3 className="font-bold text-white text-sm tracking-wide">CELLBEDELL AI AGENT</h3>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <ShieldCheck size={10} className="text-green-500" />
+                    <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-tighter">Secure Protocol v2.5</span>
+                  </div>
                 </div>
-                <button 
-                  onClick={() => setIsOpen(false)} 
-                  className="ml-auto w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/5 text-zinc-500 hover:text-white transition-colors"
-                >
-                  <X size={18} />
-                </button>
               </div>
             </div>
 
-            {/* Message Area: Light Theme */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-white/50 scrollbar-thin scrollbar-thumb-zinc-200 scrollbar-track-transparent">
+            {/* Message Area */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-5 scrollbar-hide">
               {messages.map((msg) => (
                 <motion.div
                   key={msg.id}
-                  initial={{ opacity: 0, scale: 0.98, y: 5 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
                   className={cn(
                     "flex flex-col max-w-[85%]",
                     msg.role === 'user' ? "ml-auto items-end" : "mr-auto items-start"
@@ -154,68 +131,48 @@ export default function ChatWidget() {
                 >
                   <div
                     className={cn(
-                      "px-4 py-3 rounded-2xl text-[14px] leading-relaxed transition-all",
+                      "px-4 py-3 rounded-2xl text-[13.5px] leading-relaxed",
                       msg.role === 'user'
-                        ? "bg-cyan-500 text-black font-medium rounded-tr-none shadow-[0_10px_20px_-5px_rgba(6,182,212,0.3)]"
-                        : "bg-white border border-zinc-200 text-zinc-800 rounded-tl-none shadow-sm"
+                        ? "bg-cyan-500 text-black font-semibold rounded-tr-none shadow-[0_5px_15px_rgba(6,182,212,0.3)]"
+                        : "bg-zinc-900 border border-white/5 text-zinc-100 rounded-tl-none shadow-xl"
                     )}
                   >
                     {msg.text}
                   </div>
-                  <span className="text-[10px] text-zinc-600 mt-2 px-1 uppercase tracking-widest font-mono">
-                    {msg.timestamp.toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit' })}
-                  </span>
                 </motion.div>
               ))}
               {isLoading && (
-                <div className="flex items-center gap-3 text-cyan-500/70 p-2">
-                  <div className="flex gap-1">
-                    <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.5, delay: 0 }} className="w-1.5 h-1.5 bg-current rounded-full" />
-                    <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.5, delay: 0.2 }} className="w-1.5 h-1.5 bg-current rounded-full" />
-                    <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1.5, delay: 0.4 }} className="w-1.5 h-1.5 bg-current rounded-full" />
-                  </div>
-                  <span className="text-[11px] font-mono tracking-tighter uppercase">Analyzing Data Stream...</span>
+                <div className="flex items-center gap-2 text-cyan-500 p-2">
+                  <Loader2 size={14} className="animate-spin" />
+                  <span className="text-[10px] font-mono tracking-widest uppercase">Processing Request...</span>
                 </div>
               )}
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area: Light Glass Style */}
-            <div className="p-6 pt-2 bg-gradient-to-t from-white to-transparent">
-              <div className="relative group">
+            {/* Input Area */}
+            <div className="p-5 bg-black/40 border-t border-white/5">
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-1 flex items-center">
                 <input
                   type="text"
-                  placeholder="輸入您的技術諮詢..."
+                  placeholder="詢問技術細節..."
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                  className="w-full bg-zinc-100/80 border border-zinc-200 focus:border-cyan-500/50 outline-none rounded-2xl py-4 pl-5 pr-14 text-sm text-zinc-900 placeholder:text-zinc-400 transition-all shadow-inner"
+                  className="flex-1 bg-transparent border-none outline-none px-3 py-2 text-sm text-white placeholder:text-zinc-600"
                 />
                 <button
                   onClick={handleSend}
                   disabled={isLoading || !input.trim()}
                   className={cn(
-                    "absolute right-2 top-2 w-10 h-10 rounded-xl flex items-center justify-center transition-all",
-                    input.trim() 
-                      ? "bg-cyan-500 text-black shadow-[0_0_15px_rgba(6,182,212,0.4)] hover:scale-105 active:scale-95" 
-                      : "bg-zinc-800 text-zinc-600 opacity-50 cursor-not-allowed"
+                    "w-10 h-10 rounded-xl flex items-center justify-center transition-all",
+                    input.trim() ? "bg-white text-black hover:scale-105" : "bg-white/5 text-zinc-700"
                   )}
                 >
-                  <Send size={18} />
+                  <Send size={16} />
                 </button>
               </div>
-              <div className="flex items-center justify-between mt-4 px-1">
-                <div className="flex gap-4">
-                  <Sparkles size={14} className="text-zinc-700 hover:text-cyan-500 cursor-help transition-colors" />
-                </div>
-                <p className="text-[9px] text-zinc-700 uppercase tracking-[0.2em] font-mono">
-                  Cellbedell Ecosystem Pro
-                </p>
-              </div>
             </div>
-            
-            {/* Glow Decorative Line */}
-            <div className="h-0.5 w-full bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
           </motion.div>
         )}
       </AnimatePresence>
