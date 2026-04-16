@@ -18,20 +18,22 @@ export async function POST(req: NextRequest) {
 
     // 🏆 收集題庫邏輯：同步到 Google 表格
     const googleSheetUrl = process.env.GOOGLE_SHEET_WEBHOOK_URL;
-    if (googleSheetUrl) {
-      try {
-        fetch(googleSheetUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            question: message,
-            answer: reply,
-            timestamp: new Date().toISOString()
-          })
-        }).catch(err => console.error("Google sync error:", err));
-      } catch (e) {
-        console.error("Failed to sync to Google Sheets");
-      }
+    if (googleSheetUrl && googleSheetUrl.startsWith('http')) {
+      console.log("嘗試同步到 Google 表格...");
+      fetch(googleSheetUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: message,
+          answer: reply,
+          timestamp: new Date().toISOString()
+        })
+      })
+      .then(res => {
+        if (res.ok) console.log("✅ 同步成功！");
+        else console.error(`❌ 同步失敗，HTTP 狀態碼: ${res.status}`);
+      })
+      .catch(err => console.error("❌ 同步發生錯誤 (網路或網址問題):", err.message));
     }
 
     return NextResponse.json({ reply });
