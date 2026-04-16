@@ -16,12 +16,23 @@ export async function POST(req: NextRequest) {
     // 2. 呼叫 Gemini
     const reply = await getGeminiResponse(message, context);
 
-    // 🏆 收集題庫邏輯：在後台日誌記錄問答對碼
-    console.log("--- [Alice Question Bank Log] ---");
-    console.log(`時間: ${new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei' })}`);
-    console.log(`問題: ${message}`);
-    console.log(`回答: ${reply}`);
-    console.log("---------------------------------");
+    // 🏆 收集題庫邏輯：同步到 Google 表格
+    const googleSheetUrl = process.env.GOOGLE_SHEET_WEBHOOK_URL;
+    if (googleSheetUrl) {
+      try {
+        fetch(googleSheetUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question: message,
+            answer: reply,
+            timestamp: new Date().toISOString()
+          })
+        }).catch(err => console.error("Google sync error:", err));
+      } catch (e) {
+        console.error("Failed to sync to Google Sheets");
+      }
+    }
 
     return NextResponse.json({ reply });
   } catch (error: any) {
