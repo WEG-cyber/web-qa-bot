@@ -10,8 +10,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 });
     }
 
-    // 1. 獲取當前知識庫內容
-    const context = await getKnowledgeBase();
+    // 1. 獲取篩選後的相關知識庫內容 (優化 Token 消耗)
+    const context = await getKnowledgeBase(message);
 
     // 2. 呼叫 Gemini
     const reply = await getGeminiResponse(message, context);
