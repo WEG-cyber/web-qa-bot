@@ -22,5 +22,16 @@ export async function getGeminiResponse(message: string, context: string, lang: 
 
   const result = await model.generateContent(message);
   const response = await result.response;
-  return response.text();
-};
+  
+  // 獲取 Token 統計數據
+  const usage = response.usageMetadata;
+
+  return {
+    text: response.text(),
+    usage: {
+      promptTokens: usage?.promptTokenCount || 0,
+      candidatesTokens: usage?.candidatesTokenCount || 0,
+      totalTokens: usage?.totalTokenCount || 0
+    }
+  };
+}
