@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, X, Send, Smartphone, ShieldCheck, Loader2 } from 'lucide-react';
+import { MessageSquare, X, Send, Smartphone, Loader2 } from 'lucide-react';
 import { useSearchParams } from 'next/navigation';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -16,6 +16,54 @@ interface Message {
   role: 'bot' | 'user';
   text: string;
   timestamp: Date;
+}
+
+type SupportedLang = 'zh' | 'en' | 'ja' | 'th';
+
+const uiCopy: Record<SupportedLang, {
+  welcome: string;
+  status: string;
+  processing: string;
+  placeholder: string;
+  error: string;
+}> = {
+  zh: {
+    welcome: '您好，我是 Alice。很榮幸為您提供 Cellbedell 專業技術與產品支援，有什麼我可以協助您的？',
+    status: '企業級安全連線 v2.5',
+    processing: 'AI 思考中...',
+    placeholder: '詢問技術細節...',
+    error: '系統偵測到異常，請稍後再試。',
+  },
+  en: {
+    welcome: 'Hello, I am Alice. I am honored to provide professional technical and product support for Cellbedell. How can I help you today?',
+    status: 'Enterprise Secure v2.5',
+    processing: 'Processing...',
+    placeholder: 'Ask a question...',
+    error: 'System error, please try again.',
+  },
+  ja: {
+    welcome: 'こんにちは、Aliceです。Cellbedellの製品と技術について、専門的にサポートいたします。どのようなご用件でしょうか？',
+    status: 'エンタープライズ安全接続 v2.5',
+    processing: 'AI が考えています...',
+    placeholder: '技術的な内容を質問...',
+    error: 'システムエラーが発生しました。しばらくしてからもう一度お試しください。',
+  },
+  th: {
+    welcome: 'สวัสดีค่ะ ฉันชื่อ Alice ยินดีให้บริการข้อมูลผลิตภัณฑ์และการสนับสนุนด้านเทคนิคของ Cellbedell ต้องการให้ช่วยเรื่องใดคะ?',
+    status: 'การเชื่อมต่อระดับองค์กร v2.5',
+    processing: 'AI กำลังประมวลผล...',
+    placeholder: 'สอบถามรายละเอียดทางเทคนิค...',
+    error: 'ระบบขัดข้อง กรุณาลองใหม่อีกครั้งภายหลัง',
+  },
+};
+
+function normalizeLang(value: string | null): SupportedLang {
+  const lang = (value || 'zh').toLowerCase();
+
+  if (lang.startsWith('en')) return 'en';
+  if (lang.startsWith('ja') || lang.startsWith('jp')) return 'ja';
+  if (lang.startsWith('th')) return 'th';
+  return 'zh';
 }
 
 const urlPattern = /(https?:\/\/[^\s<>"']+)/g;
@@ -72,7 +120,8 @@ function renderMessageText(text: string, isUser: boolean) {
 
 export default function ChatWidget() {
   const searchParams = useSearchParams();
-  const lang = searchParams.get('lang') || 'zh'; // 預設中文
+  const lang = normalizeLang(searchParams.get('lang'));
+  const copy = uiCopy[lang];
   
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -82,19 +131,15 @@ export default function ChatWidget() {
 
   // 根據語言設定初始歡迎詞
   useEffect(() => {
-    const initialMsg = lang === 'en' 
-      ? 'Hello, I am Alice. I am honored to provide professional technical and product support for Cellbedell. How can I help you today?'
-      : '您好，我是 Alice。很榮幸為您提供 Cellbedell 專業技術與產品支援，有什麼我可以協助您的？';
-      
     setMessages([
       {
         id: '1',
         role: 'bot',
-        text: initialMsg,
+        text: copy.welcome,
         timestamp: new Date(),
       },
     ]);
-  }, [lang]);
+  }, [copy.welcome]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -133,7 +178,7 @@ export default function ChatWidget() {
       const botMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: 'bot',
-        text: data.reply || (lang === 'en' ? 'System error, please try again.' : '系統偵測到異常，請稍後再試。'),
+        text: data.reply || copy.error,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botMsg]);
@@ -180,7 +225,7 @@ export default function ChatWidget() {
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
                     <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-tighter">
-                      {lang === 'en' ? 'Enterprise Secure v2.5' : '企業級安全連線 v2.5'}
+                      {copy.status}
                     </span>
                   </div>
                 </div>
@@ -215,7 +260,7 @@ export default function ChatWidget() {
                 <div className="flex items-center gap-2 text-cyan-500 p-2">
                   <Loader2 size={14} className="animate-spin" />
                   <span className="text-[10px] font-mono tracking-widest uppercase">
-                    {lang === 'en' ? 'Processing...' : 'AI 思考中...'}
+                    {copy.processing}
                   </span>
                 </div>
               )}
@@ -227,7 +272,7 @@ export default function ChatWidget() {
               <div className="bg-white/5 border border-white/10 rounded-2xl p-1 flex items-center">
                 <input
                   type="text"
-                  placeholder={lang === 'en' ? 'Ask a question...' : '詢問技術細節...'}
+                  placeholder={copy.placeholder}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}

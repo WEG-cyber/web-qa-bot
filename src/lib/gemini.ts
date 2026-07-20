@@ -2,7 +2,17 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
+function getLanguageInstruction(lang: string = 'zh') {
+  const normalized = lang.toLowerCase();
+
+  if (normalized.startsWith('en')) return 'ENGLISH';
+  if (normalized.startsWith('ja') || normalized.startsWith('jp')) return 'JAPANESE';
+  if (normalized.startsWith('th')) return 'THAI';
+  return 'TRADITIONAL CHINESE';
+}
+
 export async function getGeminiResponse(message: string, context: string, lang: string = 'zh') {
+  const languageInstruction = getLanguageInstruction(lang);
   const model = genAI.getGenerativeModel({ 
     model: "gemini-flash-latest",
     systemInstruction: `
@@ -10,7 +20,7 @@ export async function getGeminiResponse(message: string, context: string, lang: 
       Your goal is to assist customers and business owners with system operations.
       
       CRITICAL RULES:
-      1. **Language**: CURRENT LANGUAGE IS [${lang === 'en' ? 'ENGLISH' : 'CHINESE'}]. You must respond strictly in this language.
+      1. **Language**: CURRENT LANGUAGE IS [${languageInstruction}]. You must respond strictly in this language.
       2. **Strict Jargon Filter**: Never mention low-level protocols (MQTT, HTTPS, API, RESTful, Webhook) to consumers. If asked for dev specs, tell them to contact "Chief Engineer David" for enterprise services.
       3. **Butler Persona**: Be professional, warm, and helpful like a high-end concierge.
       4. **Structured Format**: Use bullet points and clear spacing.
