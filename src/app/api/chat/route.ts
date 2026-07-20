@@ -14,9 +14,20 @@ function normalizeLang(lang: string = 'zh') {
   return 'zh';
 }
 
+function getPricingReply(lang: string = 'zh') {
+  const normalizedLang = normalizeLang(lang);
+  const pricingReplies = {
+    zh: '您可以使用 Cellbedell 線上價格估算工具，依房間數與需求快速評估建置費用：https://www.cellbedell.com/#calculator',
+    en: 'You can use the Cellbedell online price estimator to calculate an initial budget based on your room count and requirements: https://www.cellbedell.com/#calculator',
+    ja: '客室数やご要望に応じた概算費用は、Cellbedell のオンライン価格見積もりツールでご確認いただけます：https://www.cellbedell.com/#calculator',
+    th: 'คุณสามารถใช้เครื่องมือประเมินราคาออนไลน์ของ Cellbedell เพื่อคำนวณงบประมาณเบื้องต้นตามจำนวนห้องและความต้องการได้ที่: https://www.cellbedell.com/#calculator',
+  };
+
+  return pricingReplies[normalizedLang];
+}
+
 function getFallbackReply(message: string, lang: string = 'zh') {
   const normalizedLang = normalizeLang(lang);
-  const isPricingInquiry = pricingPattern.test(message);
 
   const genericReplies = {
     zh: '抱歉，Alice 目前回覆時間較長，請稍後再試。若您需要估算建置費用，請使用 Cellbedell 線上價格估算工具：https://www.cellbedell.com/#calculator',
@@ -25,14 +36,7 @@ function getFallbackReply(message: string, lang: string = 'zh') {
     th: 'ขออภัยค่ะ ขณะนี้ Alice ใช้เวลาตอบกลับนานกว่าปกติ กรุณาลองใหม่อีกครั้งภายหลัง หากต้องการประเมินราคา สามารถใช้เครื่องมือประเมินราคาออนไลน์ของ Cellbedell ได้ที่: https://www.cellbedell.com/#calculator',
   };
 
-  const pricingReplies = {
-    zh: '您可以使用 Cellbedell 線上價格估算工具，依房間數與需求快速評估建置費用：https://www.cellbedell.com/#calculator',
-    en: 'You can use the Cellbedell online price estimator to calculate an initial budget based on your room count and requirements: https://www.cellbedell.com/#calculator',
-    ja: '客室数やご要望に応じた概算費用は、Cellbedell のオンライン価格見積もりツールでご確認いただけます：https://www.cellbedell.com/#calculator',
-    th: 'คุณสามารถใช้เครื่องมือประเมินราคาออนไลน์ของ Cellbedell เพื่อคำนวณงบประมาณเบื้องต้นตามจำนวนห้องและความต้องการได้ที่: https://www.cellbedell.com/#calculator',
-  };
-
-  return isPricingInquiry ? pricingReplies[normalizedLang] : genericReplies[normalizedLang];
+  return pricingPattern.test(message) ? getPricingReply(normalizedLang) : genericReplies[normalizedLang];
 }
 
 function withTimeout<T>(promise: Promise<T>, fallback: T) {
@@ -50,6 +54,10 @@ export async function POST(req: NextRequest) {
     
     if (!message) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 });
+    }
+
+    if (pricingPattern.test(message)) {
+      return NextResponse.json({ reply: getPricingReply(lang) });
     }
 
     // 1. 獲取篩選後的相關知識庫內容 (優化 Token 消耗)
