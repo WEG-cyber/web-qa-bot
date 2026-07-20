@@ -32,28 +32,28 @@ const uiCopy: Record<SupportedLang, {
     status: '企業級安全連線 v2.5',
     processing: 'AI 思考中...',
     placeholder: '詢問技術細節...',
-    error: '抱歉，Alice 目前回覆時間較長，請稍後再試。若您需要估算建置費用，可使用：https://www.cellbedell.com/#calculator',
+    error: '您好，我是 Alice。您可以詢問 Cellbedell 的智慧門禁、手機開門、Wallet 憑證、自助入住或建置費用。若您需要估算建置費用，也可以先使用：https://www.cellbedell.com/#calculator',
   },
   en: {
     welcome: 'Hello, I am Alice. I am honored to provide professional technical and product support for Cellbedell. How can I help you today?',
     status: 'Enterprise Secure v2.5',
     processing: 'Processing...',
     placeholder: 'Ask a question...',
-    error: 'Sorry, Alice is taking longer than expected. Please try again shortly. For pricing estimates: https://www.cellbedell.com/#calculator',
+    error: 'Hello, I am Alice. You can ask me about Cellbedell smart access, mobile keys, Wallet credentials, self check-in, or setup costs. For pricing estimates: https://www.cellbedell.com/#calculator',
   },
   ja: {
     welcome: 'こんにちは、Aliceです。Cellbedellの製品と技術について、専門的にサポートいたします。どのようなご用件でしょうか？',
     status: 'エンタープライズ安全接続 v2.5',
     processing: 'AI が考えています...',
     placeholder: '技術的な内容を質問...',
-    error: '申し訳ございません。現在 Alice の応答に通常より時間がかかっています。お見積もりはこちらをご利用ください：https://www.cellbedell.com/#calculator',
+    error: 'こんにちは、Aliceです。Cellbedell のスマートアクセス、モバイルキー、Wallet 認証、自動チェックイン、概算費用についてご相談いただけます。お見積もりはこちら：https://www.cellbedell.com/#calculator',
   },
   th: {
     welcome: 'สวัสดีค่ะ ฉันชื่อ Alice ยินดีให้บริการข้อมูลผลิตภัณฑ์และการสนับสนุนด้านเทคนิคของ Cellbedell ต้องการให้ช่วยเรื่องใดคะ?',
     status: 'การเชื่อมต่อระดับองค์กร v2.5',
     processing: 'AI กำลังประมวลผล...',
     placeholder: 'สอบถามรายละเอียดทางเทคนิค...',
-    error: 'ขออภัยค่ะ ขณะนี้ Alice ใช้เวลาตอบกลับนานกว่าปกติ หากต้องการประเมินราคา ใช้ลิงก์นี้ได้เลย: https://www.cellbedell.com/#calculator',
+    error: 'สวัสดีค่ะ ฉันชื่อ Alice คุณสามารถสอบถามเรื่องระบบประตูอัจฉริยะ Mobile Key, Wallet, ระบบเช็กอินอัตโนมัติ หรือการประเมินค่าใช้จ่ายได้ค่ะ: https://www.cellbedell.com/#calculator',
   },
 };
 
