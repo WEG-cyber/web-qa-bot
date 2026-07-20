@@ -18,6 +18,58 @@ interface Message {
   timestamp: Date;
 }
 
+const urlPattern = /(https?:\/\/[^\s<>"']+)/g;
+const trailingUrlPunctuation = /[.,，。!?！？;；:：)）\]]+$/;
+
+function renderMessageText(text: string, isUser: boolean) {
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+
+  for (const match of text.matchAll(urlPattern)) {
+    const rawUrl = match[0];
+    const startIndex = match.index ?? 0;
+    let url = rawUrl;
+    let trailing = '';
+    const trailingMatch = url.match(trailingUrlPunctuation);
+
+    if (trailingMatch) {
+      trailing = trailingMatch[0];
+      url = url.slice(0, -trailing.length);
+    }
+
+    if (startIndex > lastIndex) {
+      parts.push(text.slice(lastIndex, startIndex));
+    }
+
+    parts.push(
+      <a
+        key={`${url}-${startIndex}`}
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={cn(
+          "break-all underline underline-offset-2 transition-colors",
+          isUser ? "text-black hover:text-zinc-700" : "text-cyan-300 hover:text-cyan-200"
+        )}
+      >
+        {url}
+      </a>
+    );
+
+    if (trailing) {
+      parts.push(trailing);
+    }
+
+    lastIndex = startIndex + rawUrl.length;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts.length ? parts : text;
+}
+
 export default function ChatWidget() {
   const searchParams = useSearchParams();
   const lang = searchParams.get('lang') || 'zh'; // 預設中文
@@ -155,7 +207,7 @@ export default function ChatWidget() {
                         : "bg-zinc-900 border border-white/5 text-zinc-100 rounded-tl-none shadow-xl"
                     )}
                   >
-                    {msg.text}
+                    {renderMessageText(msg.text, msg.role === 'user')}
                   </div>
                 </motion.div>
               ))}
