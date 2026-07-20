@@ -99,12 +99,12 @@ export default function ChatWidget() {
         whileHover={{ scale: 1.1, rotate: 5 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="relative w-14 h-14 bg-black border border-white/20 rounded-2xl flex items-center justify-center text-cyan-400 cursor-pointer shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-50 overflow-hidden group"
+        className="relative w-16 h-16 sm:w-14 sm:h-14 bg-black border border-white/20 rounded-2xl flex items-center justify-center text-cyan-400 cursor-pointer shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-50 overflow-hidden group"
       >
         <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-        {isOpen ? <X size={24} className="text-white" /> : <MessageSquare size={26} fill="currentColor" />}
+        {isOpen ? <X className="w-7 h-7 sm:w-6 sm:h-6 text-white" /> : <MessageSquare className="w-8 h-8 sm:w-[26px] sm:h-[26px]" fill="currentColor" />}
         {!isOpen && (
-          <div className="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
+          <div className="absolute top-2 right-2 w-2.5 h-2.5 sm:w-2 sm:h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]" />
         )}
       </motion.button>
 
@@ -115,7 +115,7 @@ export default function ChatWidget() {
             initial={{ opacity: 0, y: 20, scale: 0.8, originX: '100%', originY: '100%' }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.8 }}
-            className="absolute bottom-16 right-0 w-[400px] h-[580px] bg-[#0c0c0e]/95 backdrop-blur-3xl rounded-[32px] shadow-[0_10px_40px_rgba(0,0,0,0.4)] overflow-hidden border border-white/10 flex flex-col"
+            className="absolute bottom-16 right-0 w-[calc(100vw-2rem)] sm:w-[400px] h-[80vh] sm:h-[580px] bg-[#0c0c0e]/95 backdrop-blur-3xl rounded-[32px] shadow-[0_10px_40px_rgba(0,0,0,0.4)] overflow-hidden border border-white/10 flex flex-col"
           >
             {/* Header */}
             <div className="p-6 bg-black/40 border-b border-white/5">
@@ -149,7 +149,7 @@ export default function ChatWidget() {
                 >
                   <div
                     className={cn(
-                      "px-4 py-3 rounded-2xl text-[13.5px] leading-relaxed whitespace-pre-wrap",
+                      "px-4 py-3 rounded-2xl text-[15px] sm:text-[13.5px] leading-relaxed whitespace-pre-wrap",
                       msg.role === 'user'
                         ? "bg-cyan-500 text-black font-semibold rounded-tr-none shadow-[0_5px_15px_rgba(6,182,212,0.3)]"
                         : "bg-zinc-900 border border-white/5 text-zinc-100 rounded-tl-none shadow-xl"
@@ -179,7 +179,7 @@ export default function ChatWidget() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                  className="flex-1 bg-transparent border-none outline-none px-3 py-2 text-sm text-white placeholder:text-zinc-600"
+                  className="flex-1 bg-transparent border-none outline-none px-3 py-2 text-[15px] sm:text-sm text-white placeholder:text-zinc-600"
                 />
                 <button
                   onClick={handleSend}
