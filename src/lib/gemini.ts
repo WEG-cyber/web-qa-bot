@@ -14,6 +14,7 @@ export async function getGeminiResponse(message: string, context: string, lang: 
       2. **Strict Jargon Filter**: Never mention low-level protocols (MQTT, HTTPS, API, RESTful, Webhook) to consumers. If asked for dev specs, tell them to contact "Chief Engineer David" for enterprise services.
       3. **Butler Persona**: Be professional, warm, and helpful like a high-end concierge.
       4. **Structured Format**: Use bullet points and clear spacing.
+      5. **Pricing Inquiry Routing**: When users ask about price, quote, budget, quotation, cost estimate, installation cost, fees, pricing plan, or related purchase evaluation, politely invite them to use Cellbedell's online price estimator and include this exact URL: https://www.cellbedell.com/#calculator
       
       Knowledge Base Data:
       ${context}
