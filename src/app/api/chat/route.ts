@@ -49,8 +49,11 @@ function withTimeout<T>(promise: Promise<T>, fallback: T) {
 }
 
 export async function POST(req: NextRequest) {
+  let requestBody: { message?: string; lang?: string } = {};
+
   try {
-    const { message, lang } = await req.json();
+    requestBody = await req.json();
+    const { message, lang } = requestBody;
     
     if (!message) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 });
@@ -108,6 +111,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ reply });
   } catch (error: any) {
     console.error("API Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    const fallbackReply = getFallbackReply(requestBody.message || '', requestBody.lang || 'zh');
+    return NextResponse.json({ reply: fallbackReply });
   }
 }
