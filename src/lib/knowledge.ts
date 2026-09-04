@@ -1,10 +1,10 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import { PDFParse } from "pdf-parse";
 import mammoth from "mammoth";
 import { adminDb, adminStorage } from "@/lib/firebase/admin";
 
-const embeddingModel = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "")
-  .getGenerativeModel({ model: "gemini-embedding-001" });
+const embeddingClient = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
+const EMBEDDING_DIMENSION = 768;
 
 export async function extractText(buffer: Buffer, contentType: string, name: string) {
   if (contentType === "application/pdf" || name.toLowerCase().endsWith(".pdf")) {
@@ -34,8 +34,14 @@ export function splitIntoChunks(text: string, size = 1200, overlap = 150) {
 }
 
 export async function embed(text: string) {
-  const result = await embeddingModel.embedContent(text);
-  return result.embedding.values;
+  const result = await embeddingClient.models.embedContent({
+    model: "gemini-embedding-001",
+    contents: text,
+    config: { outputDimensionality: EMBEDDING_DIMENSION },
+  });
+  const values = result.embeddings?.[0]?.values;
+  if (!values?.length) throw new Error("Embedding generation returned no values");
+  return values;
 }
 
 export async function indexDocument(args: { organizationId: string; botId: string; documentId: string }) {
