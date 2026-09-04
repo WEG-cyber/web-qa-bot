@@ -3,7 +3,7 @@ import ChatWidget from "@/components/ChatWidget";
 
 export default function WidgetPage() {
   return (
-    <div className="bg-transparent w-full h-full overflow-hidden">
+    <div className="fixed inset-0 bg-transparent w-full h-full overflow-hidden">
       <Suspense fallback={null}>
         <ChatWidget />
       </Suspense>

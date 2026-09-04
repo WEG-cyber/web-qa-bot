@@ -18,6 +18,8 @@ interface Message {
   timestamp: Date;
 }
 
+type PublicBotConfig = { name: string; primaryColor: string; welcomeMessage: string };
+
 type SupportedLang = 'zh' | 'en' | 'ja' | 'th';
 
 const uiCopy: Record<SupportedLang, {
@@ -121,13 +123,21 @@ function renderMessageText(text: string, isUser: boolean) {
 export default function ChatWidget() {
   const searchParams = useSearchParams();
   const lang = normalizeLang(searchParams.get('lang'));
+  const botId = searchParams.get('botId') || undefined;
+  const embedOrigin = searchParams.get('origin') || undefined;
   const copy = uiCopy[lang];
+  const [botConfig, setBotConfig] = useState<PublicBotConfig | null>(null);
   
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const conversationIdRef = useRef('');
+
+  useEffect(() => {
+    conversationIdRef.current = crypto.randomUUID();
+  }, []);
 
   // 根據語言設定初始歡迎詞
   useEffect(() => {
@@ -135,11 +145,19 @@ export default function ChatWidget() {
       {
         id: '1',
         role: 'bot',
-        text: copy.welcome,
+        text: botConfig?.welcomeMessage || copy.welcome,
         timestamp: new Date(),
       },
     ]);
-  }, [copy.welcome]);
+  }, [copy.welcome, botConfig?.welcomeMessage]);
+
+  useEffect(() => {
+    if (!botId) return;
+    fetch(`/api/bots/${encodeURIComponent(botId)}/config`)
+      .then(response => response.ok ? response.json() : null)
+      .then(data => data && setBotConfig(data))
+      .catch(() => undefined);
+  }, [botId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -148,6 +166,12 @@ export default function ChatWidget() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    if (window.parent !== window && botId) {
+      window.parent.postMessage({ type: 'alice-widget-resize', botId, open: isOpen }, '*');
+    }
+  }, [isOpen, botId]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -169,6 +193,9 @@ export default function ChatWidget() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           message: input,
+          botId,
+          origin: embedOrigin,
+          conversationId: conversationIdRef.current || crypto.randomUUID(),
           lang: lang // 將語系傳給後端
         }),
       });
@@ -228,7 +255,7 @@ export default function ChatWidget() {
                   <Smartphone size={20} className="text-cyan-400" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white text-sm tracking-wide">ALICE – SMART AGENT</h3>
+                  <h3 className="font-bold text-white text-sm tracking-wide">{(botConfig?.name || 'ALICE').toUpperCase()} – SMART AGENT</h3>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
                     <span className="text-[10px] text-zinc-500 font-mono uppercase tracking-tighter">

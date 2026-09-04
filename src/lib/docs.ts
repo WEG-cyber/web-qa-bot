@@ -7,7 +7,7 @@ import path from "path";
  */
 export async function getKnowledgeBase(query?: string) {
   const baseDir = path.join(process.cwd(), "src/data/knowledge");
-  let allContentBlocks: { title: string; body: string }[] = [];
+  const allContentBlocks: { title: string; body: string }[] = [];
 
   const readFiles = (dir: string) => {
     if (!fs.existsSync(dir)) return;

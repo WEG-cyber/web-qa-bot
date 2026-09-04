@@ -1,10 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getGeminiResponse } from "@/lib/gemini";
 import { getKnowledgeBase } from "@/lib/docs";
+import { adminDb } from "@/lib/firebase/admin";
+import { getBotKnowledge } from "@/lib/knowledge";
+import { FieldValue } from "firebase-admin/firestore";
 
 const GEMINI_TIMEOUT_MS = 25000;
 const pricingPattern = /價格|報價|詢價|費用|預算|估價|估算|建置成本|price|quote|quotation|cost|budget|estimate|pricing|見積|費用|価格|予算|ราคา|ค่าใช้จ่าย|งบประมาณ|ประเมินราคา/i;
 const greetingPattern = /^(hi|hello|hey|哈囉|嗨|你好|您好|こんにちは|สวัสดี|หวัดดี)[!！。,.，\s]*$/i;
+const rateWindows = new Map<string, { count: number; resetAt: number }>();
+
+function isRateLimited(key: string) {
+  const now = Date.now();
+  const current = rateWindows.get(key);
+  if (!current || current.resetAt < now) {
+    rateWindows.set(key, { count: 1, resetAt: now + 60_000 });
+    return false;
+  }
+  current.count += 1;
+  return current.count > 20;
+}
 
 function normalizeLang(lang: string = 'zh') {
   const normalized = String(lang || 'zh').toLowerCase();
@@ -62,31 +77,51 @@ function withTimeout<T>(promise: Promise<T>, fallback: T) {
 }
 
 export async function POST(req: NextRequest) {
-  let requestBody: { message?: string; lang?: string } = {};
+  let requestBody: { message?: string; lang?: string; botId?: string; origin?: string; conversationId?: string } = {};
 
   try {
     requestBody = await req.json();
-    const { message, lang } = requestBody;
+    const { message, lang, botId, origin, conversationId } = requestBody;
     
     if (!message) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 });
     }
+    if (message.length > 4000) return NextResponse.json({ error: "Message is too long" }, { status: 413 });
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+    if (isRateLimited(`${botId || "default"}:${clientIp}`)) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
 
-    if (greetingPattern.test(message)) {
+    let botConfig: { organizationId?: string; name?: string; companyName?: string; systemPrompt?: string } | undefined;
+    if (botId && process.env.FIREBASE_PROJECT_ID) {
+      const publicBot = await adminDb.collection("publicBots").doc(botId).get();
+      if (!publicBot.exists || publicBot.data()?.status !== "active") {
+        return NextResponse.json({ error: "Bot is not available" }, { status: 404 });
+      }
+      botConfig = publicBot.data();
+      const allowedDomains = publicBot.data()?.allowedDomains as string[] | undefined;
+      if (origin && allowedDomains?.length && !allowedDomains.some(domain => origin === domain || origin.endsWith(`.${domain}`))) {
+        return NextResponse.json({ error: "Domain is not allowed" }, { status: 403 });
+      }
+    }
+
+    if (!botId && greetingPattern.test(message)) {
       return NextResponse.json({ reply: getGreetingReply(lang) });
     }
 
-    if (pricingPattern.test(message)) {
+    if (!botId && pricingPattern.test(message)) {
       return NextResponse.json({ reply: getPricingReply(lang) });
     }
 
-    // 1. 獲取篩選後的相關知識庫內容 (優化 Token 消耗)
-    const context = await getKnowledgeBase(message);
+    // 1. 自訂 Bot 使用自己的向量知識；舊版 Alice 保留原有本機知識庫。
+    const context = botId && botConfig?.organizationId
+      ? await getBotKnowledge(botConfig.organizationId, botId, message)
+      : await getKnowledgeBase(message);
 
     // 2. 呼叫 Gemini (傳入語系)，並提供逾時 fallback，避免使用者等待到空白回覆
     const fallbackReply = getFallbackReply(message, lang);
     const { text: reply, usage } = await withTimeout(
-      getGeminiResponse(message, context, lang),
+      getGeminiResponse(message, context, lang, botConfig),
       {
         text: fallbackReply,
         usage: {
@@ -96,6 +131,23 @@ export async function POST(req: NextRequest) {
         },
       }
     );
+
+    if (botId && botConfig?.organizationId && conversationId) {
+      const conversationRef = adminDb.doc(`organizations/${botConfig.organizationId}/bots/${botId}/conversations/${conversationId}`);
+      const userMessageRef = conversationRef.collection("messages").doc();
+      const botMessageRef = conversationRef.collection("messages").doc();
+      const existingConversation = await conversationRef.get();
+      const batch = adminDb.batch();
+      batch.set(conversationRef, {
+        botId, origin: origin || null, language: normalizeLang(lang),
+        lastMessage: message.slice(0, 160), messageCount: FieldValue.increment(2),
+        totalTokens: FieldValue.increment(usage.totalTokens), updatedAt: FieldValue.serverTimestamp(),
+        ...(!existingConversation.exists ? { createdAt: FieldValue.serverTimestamp() } : {}),
+      }, { merge: true });
+      batch.set(userMessageRef, { role: "user", content: message, createdAt: FieldValue.serverTimestamp() });
+      batch.set(botMessageRef, { role: "assistant", content: reply, usage, createdAt: FieldValue.serverTimestamp() });
+      await batch.commit();
+    }
 
     // 🏆 收集題庫邏輯：同步到 Google 表格 (包含 Token 監控)
     const googleSheetUrl = process.env.GOOGLE_SHEET_WEBHOOK_URL;
@@ -125,8 +177,8 @@ export async function POST(req: NextRequest) {
       console.warn("⚠️ 警告：未設定 GOOGLE_SHEET_WEBHOOK_URL 或網址不正確。");
     }
 
-    return NextResponse.json({ reply });
-  } catch (error: any) {
+    return NextResponse.json({ reply, botId: botId || "alice-default" });
+  } catch (error: unknown) {
     console.error("API Error:", error);
     const fallbackReply = getFallbackReply(requestBody.message || '', requestBody.lang || 'zh');
     return NextResponse.json({ reply: fallbackReply });
