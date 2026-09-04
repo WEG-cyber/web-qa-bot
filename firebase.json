@@ -5,9 +5,17 @@
       "rootDir": ".",
       "ignore": [
         "node_modules",
+        ".next",
         ".git",
+        ".env*",
         "firebase-debug.log",
-        "firebase-debug.*.log"
+        "firebase-debug.*.log",
+        "src/data/knowledge/**/*.png",
+        "src/data/knowledge/**/*.PNG",
+        "src/data/knowledge/**/*.jpg",
+        "src/data/knowledge/**/*.jpeg",
+        "src/data/knowledge/**/*.pdf",
+        "src/data/knowledge/**/*.pptx"
       ]
     }
   ],
